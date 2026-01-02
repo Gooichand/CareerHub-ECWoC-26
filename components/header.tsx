@@ -21,7 +21,7 @@ export default function Header() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-8">
-          <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors smooth-fade">
+          <a href="/browse" className="text-muted-foreground hover:text-foreground transition-colors smooth-fade">
             Browse
           </a>
           <Link href="/assessments" className="text-muted-foreground hover:text-foreground transition-colors smooth-fade">

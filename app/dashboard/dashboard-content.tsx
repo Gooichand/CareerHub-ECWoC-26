@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { LogOut, Search } from "lucide-react"
+import { LogOut, Search, Briefcase, GraduationCap, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface User {
@@ -81,16 +81,16 @@ export default function DashboardContent() {
           {/* Search Section */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { title: "Browse Jobs", description: "Latest job postings updated daily", icon: "💼" },
-              { title: "Find Scholarships", description: "Discover funding opportunities", icon: "🎓" },
-              { title: "Explore Internships", description: "Gain real-world experience", icon: "📚" },
+              { title: "Browse Jobs", description: "Latest job postings updated daily", icon: <Briefcase className="w-8 h-8" /> },
+              { title: "Find Scholarships", description: "Discover funding opportunities", icon: <GraduationCap className="w-8 h-8" /> },
+              { title: "Explore Internships", description: "Gain real-world experience", icon: <Users className="w-8 h-8" /> },
             ].map((item, idx) => (
               <div
                 key={idx}
                 className="glassmorphic p-6 rounded-xl border-foreground/10 hover:border-foreground/30 transition-all duration-300 cursor-pointer scale-in"
                 style={{ animationDelay: `${idx * 100}ms` }}
               >
-                <div className="text-3xl mb-3">{item.icon}</div>
+                <div className="mb-3">{item.icon}</div>
                 <h3 className="text-lg font-semibold text-foreground mb-1">{item.title}</h3>
                 <p className="text-sm text-muted-foreground">{item.description}</p>
               </div>
