@@ -23,9 +23,26 @@ interface Opportunity {
 
 const BrowsePage = () => {
   const [filter, setFilter] = useState<"all" | "job" | "internship" | "scholarship">("all");
+  const [locationFilter, setLocationFilter] = useState<"all" | "remote" | "onsite" | "relocation">("all");
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [allOpportunities, setAllOpportunities] = useState<Opportunity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const dropdownElement = document.getElementById('location-dropdown');
+      if (showLocationDropdown && dropdownElement && !dropdownElement.contains(event.target as Node)) {
+        setShowLocationDropdown(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showLocationDropdown]);
   
   useEffect(() => {
     // Get company posted jobs from localStorage
@@ -60,7 +77,22 @@ const BrowsePage = () => {
     const matchesSearch = opp.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           opp.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           opp.description.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesFilter && matchesSearch;
+    
+    // Location filtering logic
+    let matchesLocation = true;
+    if (locationFilter !== "all") {
+      const locationLower = opp.location.toLowerCase();
+      
+      if (locationFilter === "remote") {
+        matchesLocation = locationLower.includes("remote") || locationLower.includes("work from home") || locationLower.includes("wfh");
+      } else if (locationFilter === "onsite") {
+        matchesLocation = !locationLower.includes("remote") && !locationLower.includes("work from home") && !locationLower.includes("wfh");
+      } else if (locationFilter === "relocation") {
+        matchesLocation = locationLower.includes("relocation") || locationLower.includes("willing to relocate") || locationLower.includes("relocation assistance");
+      }
+    }
+    
+    return matchesFilter && matchesSearch && matchesLocation;
   });
 
   const getTypeColor = (type: string) => {
@@ -146,6 +178,63 @@ const BrowsePage = () => {
                   >
                     Scholarships
                   </Button>
+                </div>
+                <div className="relative">
+                  <Button 
+                    variant="outline"
+                    className="flex items-center justify-between min-w-[120px]"
+                    onClick={() => setShowLocationDropdown(!showLocationDropdown)}
+                  >
+                    <span>
+                      {locationFilter === "all" && "All Locations"}
+                      {locationFilter === "remote" && "Remote"}
+                      {locationFilter === "onsite" && "On-Site"}
+                      {locationFilter === "relocation" && "Relocation"}
+                    </span>
+                    <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </Button>
+                  {showLocationDropdown && (
+                    <div id="location-dropdown" className="absolute z-10 mt-1 w-full bg-background border border-foreground/20 rounded-md shadow-lg">
+                      <button 
+                        className={`block w-full text-left px-4 py-2 hover:bg-foreground/10 ${locationFilter === "all" ? "bg-foreground/20" : ""}`}
+                        onClick={() => {
+                          setLocationFilter("all");
+                          setShowLocationDropdown(false);
+                        }}
+                      >
+                        All Locations
+                      </button>
+                      <button 
+                        className={`block w-full text-left px-4 py-2 hover:bg-foreground/10 ${locationFilter === "remote" ? "bg-foreground/20" : ""}`}
+                        onClick={() => {
+                          setLocationFilter("remote");
+                          setShowLocationDropdown(false);
+                        }}
+                      >
+                        Remote
+                      </button>
+                      <button 
+                        className={`block w-full text-left px-4 py-2 hover:bg-foreground/10 ${locationFilter === "onsite" ? "bg-foreground/20" : ""}`}
+                        onClick={() => {
+                          setLocationFilter("onsite");
+                          setShowLocationDropdown(false);
+                        }}
+                      >
+                        On-Site
+                      </button>
+                      <button 
+                        className={`block w-full text-left px-4 py-2 hover:bg-foreground/10 ${locationFilter === "relocation" ? "bg-foreground/20" : ""}`}
+                        onClick={() => {
+                          setLocationFilter("relocation");
+                          setShowLocationDropdown(false);
+                        }}
+                      >
+                        Relocation
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
