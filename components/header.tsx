@@ -99,7 +99,7 @@ export default function Header() {
    * CTA logic
    * --------------------------- */
   const renderCTA = (mobile = false) => {
-    const wrapperClass = mobile ? "w-full space-y-3" : "flex items-center gap-3";
+    const wrapperClass = mobile ? "w-full flex flex-col gap-3" : "flex items-center gap-3";
 
     if (pathname === "/browse") {
       if (isCompanyLoggedIn) {
@@ -186,11 +186,15 @@ export default function Header() {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden fixed inset-x-0 top-[64px] z-40 glassmorphic border-t px-4 py-6 space-y-4">
-          {LINKS.map((l) => renderLink(l, true))}
-
-          {renderCTA(true)}
-
+        <div className="md:hidden absolute top-full left-0 right-0 z-40 glassmorphic border-t px-4 py-6 space-y-4 bg-background">
+          <div className="flex flex-col space-y-2">
+            {LINKS.map((l) => renderLink(l, true))}
+          </div>
+          
+          <div className="pt-4">
+            {renderCTA(true)}
+          </div>
+          
           <div className="pt-4 flex justify-center">
             <ThemeToggle />
           </div>
