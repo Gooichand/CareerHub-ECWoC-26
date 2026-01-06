@@ -6,34 +6,29 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ThemeToggle } from "./theme-toggle";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
 
 export default function Header() {
-  const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
-
   const pathname = usePathname();
 
-  /* ---------------------------
-   * Close mobile menu on route change
-   * --------------------------- */
+  // Close mobile menu on route change
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);
 
-  /* ---------------------------
-   * Prevent background scroll
-   * --------------------------- */
+  // Prevent background scroll when mobile menu is open
   useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "auto";
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
     return () => {
       document.body.style.overflow = "auto";
     };
   }, [isOpen]);
 
-  /* ---------------------------
-   * Smooth scroll
-   * --------------------------- */
+  // Handle section scrolling
   const handleSectionClick = (hash: string) => {
     if (window.location.pathname === "/") {
       const el = document.getElementById(hash);
@@ -53,12 +48,10 @@ export default function Header() {
     { name: "Plans", hash: "pricing" },
   ];
 
-  const isAuthenticated = status === "authenticated";
-
   const renderLink = (link: typeof LINKS[number], mobile = false) => {
     const baseClasses = mobile
-      ? "w-full rounded-lg px-4 py-3 text-base font-medium text-left text-foreground/80 hover:bg-foreground/10 hover:text-foreground transition"
-      : "relative px-4 py-2 text-foreground/80 hover:text-foreground transition";
+      ? "block w-full rounded-lg px-4 py-3 text-base font-medium text-foreground/80 hover:bg-foreground/10 hover:text-foreground transition-colors duration-200"
+      : "relative px-3 py-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors duration-200";
 
     if (link.href) {
       return (
@@ -66,7 +59,7 @@ export default function Header() {
           key={link.name}
           href={link.href}
           className={baseClasses}
-          onClick={() => setIsOpen(false)}
+          onClick={() => mobile && setIsOpen(false)}
         >
           {link.name}
         </Link>
@@ -84,41 +77,38 @@ export default function Header() {
     );
   };
 
-  /* ---------------------------
-   * CTA logic
-   * --------------------------- */
   const renderCTA = (mobile = false) => {
-    const wrapperClass = mobile ? "w-full flex flex-col gap-3" : "flex items-center gap-3";
-
-    if (isAuthenticated) {
-      return (
-        <div className={wrapperClass}>
-          <Link href="/dashboard" className="w-full">
-            <Button className="w-full flex items-center gap-2 glassmorphic-button-primary">
-              <User className="w-4 h-4" />
-              Go to Dashboard
-            </Button>
-          </Link>
-        </div>
-      );
-    }
+    const wrapperClass = mobile 
+      ? "flex flex-col gap-3 w-full" 
+      : "flex items-center gap-2";
 
     return (
       <div className={wrapperClass}>
-        <Link href="/company/login" className="w-full">
-          <Button className="w-full" variant="outline">
+        <Link href="/company/login" className={mobile ? "w-full" : ""}>
+          <Button 
+            className={mobile ? "w-full" : ""} 
+            variant="outline"
+            size={mobile ? "default" : "sm"}
+          >
             Company Login
           </Button>
         </Link>
 
-        <Link href="/login" className="w-full">
-          <Button className="w-full" variant="outline">
+        <Link href="/login" className={mobile ? "w-full" : ""}>
+          <Button 
+            className={mobile ? "w-full" : ""} 
+            variant="outline"
+            size={mobile ? "default" : "sm"}
+          >
             Student Login
           </Button>
         </Link>
 
-        <Link href="/signup" className="w-full">
-          <Button className="w-full glassmorphic-button-primary">
+        <Link href="/signup" className={mobile ? "w-full" : ""}>
+          <Button 
+            className={`${mobile ? "w-full" : ""} glassmorphic-button-primary`}
+            size={mobile ? "default" : "sm"}
+          >
             Sign Up
           </Button>
         </Link>
@@ -127,53 +117,78 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 h-16 glassmorphic border-b">
-      <nav className="max-w-7xl mx-auto h-16 px-4 flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-foreground/20 flex items-center justify-center font-bold">
-            C
-          </div>
-          <span className="font-bold hidden sm:block">CareerHub</span>
-        </Link>
+    <>
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto flex h-16 max-w-screen-2xl items-center justify-between px-4">
+          {/* Logo */}
+          <Link href="/" className="flex items-center space-x-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm">
+              C
+            </div>
+            <span className="hidden font-bold sm:inline-block">CareerHub</span>
+          </Link>
 
-        {/* Desktop Nav */}
-        <div className="hidden md:flex gap-2">
-          {LINKS.map((l) => renderLink(l))}
-        </div>
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-1">
+            {LINKS.map((link) => renderLink(link))}
+          </nav>
 
-        {/* Desktop CTA */}
-        <div className="hidden md:flex items-center gap-3">
-          <ThemeToggle />
-          {renderCTA()}
-        </div>
-
-        {/* Mobile Toggle */}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden p-2 rounded-lg hover:bg-foreground/10"
-          aria-label="Toggle Menu"
-        >
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </nav>
-
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 z-40 glassmorphic border-t px-4 py-6 space-y-4 bg-background">
-          <div className="flex flex-col space-y-2">
-            {LINKS.map((l) => renderLink(l, true))}
-          </div>
-          
-          <div className="pt-4">
-            {renderCTA(true)}
-          </div>
-          
-          <div className="pt-4 flex justify-center">
+          {/* Desktop CTA & Theme Toggle */}
+          <div className="hidden md:flex items-center space-x-2">
             <ThemeToggle />
+            {renderCTA()}
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            className="inline-flex items-center justify-center rounded-md p-2 text-foreground/60 hover:bg-accent hover:text-foreground focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary md:hidden"
+            onClick={() => setIsOpen(!isOpen)}
+            aria-expanded={isOpen}
+            aria-label="Toggle navigation menu"
+          >
+            <span className="sr-only">Open main menu</span>
+            {isOpen ? (
+              <X className="block h-6 w-6" aria-hidden="true" />
+            ) : (
+              <Menu className="block h-6 w-6" aria-hidden="true" />
+            )}
+          </button>
+        </div>
+      </header>
+
+      {/* Mobile Menu Overlay */}
+      {isOpen && (
+        <div className="fixed inset-0 z-40 md:hidden">
+          {/* Backdrop */}
+          <div 
+            className="fixed inset-0 bg-black/20 backdrop-blur-sm" 
+            onClick={() => setIsOpen(false)}
+          />
+          
+          {/* Menu Panel */}
+          <div className="fixed right-0 top-16 h-[calc(100vh-4rem)] w-full max-w-sm bg-background/95 backdrop-blur-xl border-l border-border/40 shadow-lg">
+            <div className="flex h-full flex-col">
+              {/* Navigation Links */}
+              <div className="flex-1 space-y-1 px-4 py-6">
+                {LINKS.map((link) => renderLink(link, true))}
+              </div>
+              
+              {/* CTA Buttons */}
+              <div className="border-t border-border/40 px-4 py-6">
+                {renderCTA(true)}
+              </div>
+              
+              {/* Theme Toggle */}
+              <div className="border-t border-border/40 px-4 py-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Theme</span>
+                  <ThemeToggle />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
-    </header>
+    </>
   );
 }

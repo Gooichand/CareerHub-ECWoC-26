@@ -147,6 +147,33 @@
     @apply transition-all duration-300;
   }
 
+  /* Mobile Navigation Improvements */
+  .mobile-nav-overlay {
+    @apply fixed inset-0 z-40 md:hidden;
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .mobile-nav-panel {
+    @apply fixed right-0 top-16 h-[calc(100vh-4rem)] w-full max-w-sm;
+    @apply bg-background/95 backdrop-blur-xl border-l border-border/40 shadow-lg;
+    animation: slideInRight 0.3s ease-out;
+  }
+
+  .mobile-nav-backdrop {
+    @apply fixed inset-0 bg-black/20 backdrop-blur-sm;
+  }
+
+  /* Responsive Header Fixes */
+  .header-container {
+    @apply container mx-auto flex h-16 max-w-screen-2xl items-center justify-between px-4;
+  }
+
+  @media (max-width: 640px) {
+    .header-container {
+      @apply px-3;
+    }
+  }
+
   .smooth-fade {
     @apply transition-all duration-500 ease-out;
   }
@@ -163,6 +190,17 @@
     to {
       opacity: 1;
       filter: blur(0px);
+    }
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
     }
   }
 
