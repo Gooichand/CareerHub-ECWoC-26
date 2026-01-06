@@ -3,11 +3,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  Building, 
-  MapPin, 
-  Users, 
-  Star, 
+import {
+  Building,
+  MapPin,
+  Users,
+  Star,
   ExternalLink,
   Calendar,
   Briefcase
@@ -26,13 +26,12 @@ export default function CompanyCard({ company, showViewButton = true }: CompanyC
     return Array.from({ length: 5 }, (_, i) => (
       <Star
         key={i}
-        className={`w-4 h-4 ${
-          i < Math.floor(rating)
-            ? "fill-yellow-400 text-yellow-400"
-            : i < rating
+        className={`w-4 h-4 ${i < Math.floor(rating)
+          ? "fill-yellow-400 text-yellow-400"
+          : i < rating
             ? "fill-yellow-400/50 text-yellow-400"
             : "text-gray-300"
-        }`}
+          }`}
       />
     ));
   };
@@ -82,7 +81,7 @@ export default function CompanyCard({ company, showViewButton = true }: CompanyC
             <MapPin className="w-4 h-4" />
             <span>{company.location}</span>
           </div>
-          
+
           {company.employeeCount && (
             <div className="flex items-center space-x-2 text-sm text-muted-foreground">
               <Users className="w-4 h-4" />
