@@ -1,12 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Menu, X, User } from "lucide-react";
+import { Menu, User, Briefcase, Building2, Bookmark, GraduationCap, Award, CreditCard, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ThemeToggle } from "./theme-toggle";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
 
 export default function Header() {
   const { data: session, status } = useSession();
@@ -22,16 +30,6 @@ export default function Header() {
   }, [pathname]);
 
   /* ---------------------------
-   * Prevent background scroll
-   * --------------------------- */
-  useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "auto";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, [isOpen]);
-
-  /* ---------------------------
    * Smooth scroll
    * --------------------------- */
   const handleSectionClick = (hash: string) => {
@@ -45,19 +43,20 @@ export default function Header() {
   };
 
   const LINKS = [
-    { name: "Browse", href: "/browse" },
-    { name: "Companies", href: "/companies" },
-    { name: "Bookmarks", href: "/bookmarks" },
-    { name: "Assessments", href: "/assessments" },
-    { name: "Success Stories", hash: "testimonials" },
-    { name: "Plans", hash: "pricing" },
+    { name: "Browse", href: "/browse", icon: Briefcase },
+    { name: "Companies", href: "/companies", icon: Building2 },
+    { name: "Bookmarks", href: "/bookmarks", icon: Bookmark },
+    { name: "Assessments", href: "/assessments", icon: GraduationCap },
+    { name: "Success Stories", hash: "testimonials", icon: Award },
+    { name: "Plans", hash: "pricing", icon: CreditCard },
   ];
 
   const isAuthenticated = status === "authenticated";
 
   const renderLink = (link: typeof LINKS[number], mobile = false) => {
+    const Icon = link.icon;
     const baseClasses = mobile
-      ? "w-full rounded-lg px-4 py-3 text-base font-medium text-left text-foreground/80 hover:bg-foreground/10 hover:text-foreground transition"
+      ? "group w-full rounded-xl px-4 py-3.5 text-base font-medium text-left flex items-center gap-3 text-foreground/70 hover:text-foreground hover:bg-primary/10 transition-all duration-200"
       : "relative px-4 py-2 text-foreground/80 hover:text-foreground transition";
 
     if (link.href) {
@@ -68,6 +67,7 @@ export default function Header() {
           className={baseClasses}
           onClick={() => setIsOpen(false)}
         >
+          {mobile && Icon && <Icon className="w-5 h-5 group-hover:scale-110 transition-transform" />}
           {link.name}
         </Link>
       );
@@ -79,6 +79,7 @@ export default function Header() {
         className={baseClasses}
         onClick={() => handleSectionClick(link.hash!)}
       >
+        {mobile && Icon && <Icon className="w-5 h-5 group-hover:scale-110 transition-transform" />}
         {link.name}
       </button>
     );
@@ -88,15 +89,15 @@ export default function Header() {
    * CTA logic
    * --------------------------- */
   const renderCTA = (mobile = false) => {
-    const wrapperClass = mobile ? "w-full flex flex-col gap-3" : "flex items-center gap-3";
+    const wrapperClass = mobile ? "w-full flex flex-col gap-2.5" : "flex items-center gap-3";
 
     if (isAuthenticated) {
       return (
         <div className={wrapperClass}>
           <Link href="/dashboard" className="w-full">
-            <Button className="w-full flex items-center gap-2 glassmorphic-button-primary">
-              <User className="w-4 h-4" />
-              Go to Dashboard
+            <Button className="w-full flex items-center justify-center gap-2 glassmorphic-button-primary shadow-lg hover:shadow-xl transition-all">
+              <Sparkles className="w-4 h-4" />
+              Dashboard
             </Button>
           </Link>
         </div>
@@ -106,19 +107,22 @@ export default function Header() {
     return (
       <div className={wrapperClass}>
         <Link href="/company/login" className="w-full">
-          <Button className="w-full" variant="outline">
+          <Button className="w-full justify-center" variant="outline">
+            <Building2 className="w-4 h-4 mr-2" />
             Company Login
           </Button>
         </Link>
 
         <Link href="/login" className="w-full">
-          <Button className="w-full" variant="outline">
+          <Button className="w-full justify-center" variant="outline">
+            <User className="w-4 h-4 mr-2" />
             Student Login
           </Button>
         </Link>
 
         <Link href="/signup" className="w-full">
-          <Button className="w-full glassmorphic-button-primary">
+          <Button className="w-full justify-center glassmorphic-button-primary shadow-lg hover:shadow-xl transition-all">
+            <Sparkles className="w-4 h-4 mr-2" />
             Sign Up
           </Button>
         </Link>
@@ -149,31 +153,63 @@ export default function Header() {
         </div>
 
         {/* Mobile Toggle */}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden p-2 rounded-lg hover:bg-foreground/10"
-          aria-label="Toggle Menu"
-        >
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </nav>
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+          <SheetTrigger asChild className="md:hidden">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="p-2 rounded-lg hover:bg-foreground/10"
+              aria-label="Toggle Menu"
+            >
+              <Menu size={24} />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-[320px] sm:w-[400px] flex flex-col">
+            <SheetHeader className="text-left space-y-3 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center font-bold text-primary-foreground shadow-lg">
+                  C
+                </div>
+                <div>
+                  <SheetTitle className="text-xl font-bold">CareerHub</SheetTitle>
+                  <p className="text-xs text-muted-foreground">Your career companion</p>
+                </div>
+              </div>
+            </SheetHeader>
 
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 z-40 glassmorphic border-t px-4 py-6 space-y-4 bg-background">
-          <div className="flex flex-col space-y-2">
-            {LINKS.map((l) => renderLink(l, true))}
-          </div>
-          
-          <div className="pt-4">
-            {renderCTA(true)}
-          </div>
-          
-          <div className="pt-4 flex justify-center">
-            <ThemeToggle />
-          </div>
-        </div>
-      )}
+            <Separator className="my-2" />
+
+            <div className="flex-1 overflow-y-auto">
+              <div className="space-y-6 py-4">
+                <div className="space-y-1">
+                  <p className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                    Navigation
+                  </p>
+                  <div className="space-y-1">
+                    {LINKS.map((l) => renderLink(l, true))}
+                  </div>
+                </div>
+
+                <Separator />
+
+                <div className="space-y-3 px-2">
+                  <p className="px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    Account
+                  </p>
+                  {renderCTA(true)}
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t mt-auto">
+              <div className="flex items-center justify-between px-2">
+                <span className="text-sm text-muted-foreground">Theme</span>
+                <ThemeToggle />
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
+      </nav>
     </header>
   );
 }
